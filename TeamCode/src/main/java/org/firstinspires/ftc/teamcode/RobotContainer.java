@@ -12,6 +12,11 @@ public class RobotContainer {
     public final HuskyLensCamera        husky = new HuskyLensCamera();
     private ElapsedTime                 timer = new ElapsedTime();
 
+    //TODO: Tune Kp, Kd, Ki
+    private final double    Kp = 1.0;
+    private final double    Kd = 1.0;
+    private final double    Ki = 1.0;
+
     //----------------------------------------------------------------------------------------------
     //Construction
     //----------------------------------------------------------------------------------------------
@@ -27,9 +32,9 @@ public class RobotContainer {
         );
 
         turret = new TurretSystem(
-                1,
-                1,
-                1,
+                Kp,
+                Ki,
+                Kd,
                 timer,
                 husky,
                 hwMap.get(DcMotor.class, "turretMotor")
