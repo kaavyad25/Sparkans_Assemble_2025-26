@@ -9,7 +9,58 @@ import com.qualcomm.robotcore.util.Range;
  * Main TeleOp Handler.
  */
 
+public class AssembledBot extends LinearOpMode{
 
+    private RobotContainer  robot;
+    private DriveTrain      dt = new DriveTrain();
+    private IMUOdometry     imu = new IMUOdometry();
+
+    private static final double STANDARD_INTAKE_POWER = 1.0;
+    private static double       STANDARD_OUTTAKE_POWER = 1.0;
+    private static double       driveScalar = 1.0;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+
+        dt.init(hardwareMap);
+        imu.init(hardwareMap);
+        robot = new RobotContainer(hardwareMap);
+
+        waitForStart();
+
+        dt.isMoving = true;
+
+        while (opModeIsActive()){
+
+            double rightJoyStickX = gamepad1.left_stick_x;
+            double rightJoyStickY = -gamepad1.left_stick_y;
+            double leftJoystickX = gamepad1.right_stick_x;
+
+            boolean intakeButton = gamepad1.left_bumper;
+            boolean outtakeButton = gamepad1.right_bumper;
+            boolean servoTrigger = gamepad1.a;
+
+            double currentHeadingDeg = imu.getContinuousHeadingDeg();
+
+            robot.intakeOuttake.applyIntakePower(STANDARD_INTAKE_POWER, intakeButton);
+            robot.intakeOuttake.applyOuttakePower(STANDARD_OUTTAKE_POWER, outtakeButton);
+            robot.intakeOuttake.servoEvent(servoTrigger);
+
+            if (robot.husky.isTagRecognition()) { robot.turret.continousUpdate();}
+
+            dt.setSpeedScalar(driveScalar);
+            dt.fieldOrientedTranslate(
+                    rightJoyStickX,
+                    rightJoyStickY,
+                    leftJoystickX,
+                    currentHeadingDeg
+            );
+        }
+    }
+}
+
+
+/*
 public class AssembledBot extends LinearOpMode {
     ElapsedTime     elapsedTime = new ElapsedTime();
     DriveTrain      dt = new DriveTrain();
@@ -20,9 +71,9 @@ public class AssembledBot extends LinearOpMode {
     //TODO: Manually tune Kp, Ki, Kd
     RobotFunctions  func = new RobotFunctions(1.0, 1.0, 1.0, husky, elapsedTime);
 
-    private static final double     STANDARD_OUTTAKE_POWER = 1.0;  /** Change later when tested*/
-    private static final double     STANDARD_INTAKE_POWER = 1.0;  /** Change later when tested*/
-    private static double           driveScalar = 1.0; /** will change with controller*/
+    private static final double     STANDARD_OUTTAKE_POWER = 1.0;  // Change later when tested
+    private static final double     STANDARD_INTAKE_POWER = 1.0;  // Change later when tested
+    private static double           driveScalar = 1.0; // will change with controller
     private int                     tagId;
     private boolean                 isTagRead = false;
 
@@ -84,3 +135,4 @@ public class AssembledBot extends LinearOpMode {
         }
     }
 }
+*/

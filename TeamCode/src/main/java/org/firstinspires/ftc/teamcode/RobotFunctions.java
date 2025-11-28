@@ -1,3 +1,5 @@
+
+/*
 package org.firstinspires.ftc.teamcode;
 
 
@@ -7,31 +9,29 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 
-import org.jetbrains.annotations.NotNull;
 
 
-/**
- * RobotFunctions is responsible for all operations the robot is able
- * to carry out i.e., intake, outtake, aiming. It is a subclass of
- * PIDControl.
- */
+
 // Class is incomplete; REMEMBER TO COMMENT OUT AIMING RELATED CODE BEFORE NEXT COMP
+//TODO: Refactor entire class; Turn into manager for subsystems, i.e., TurretSystem, IntakeSystem, OuttakeSystem, HuskyLensCamera.
+//This will be easier to debug, more logical implementation of PIDControl.
+
 public class RobotFunctions extends PIDControl{
 
-    DcMotor leftIntakeMotor, rightIntakeMotor, leftOuttakeMotor, rightOuttakeMotor;
+    DcMotor intakeMotor, outtakeMotor;
     DcMotor turretMotor;
     Servo launchServo;
 
     private static double       motorScalar = 1.0;
-    private static final double CUSTOM_SERVO_EXTEND = 0.55; /** FIXME: Test for more suitable value*/
+    private static final double CUSTOM_SERVO_EXTEND = 0.55;
     public static final double  CENTER_OF_VIEW_X = 160.0;
 
-    // TODO: Build calculateDistance
+
     // TODO: Build setOuttakePower (current setOuttakeScalar() is useless).
     // Moreover, disregard setOuttakeScalar() entirely
 
-    private static final double APRILTAG_SIDELENGTH_INCHES = 6.5; /** FIXME: Measure more accurately*/
-    private static final int    HUSKY_SCREEN_WIDTH = 160;
+    private static final double APRILTAG_SIDELENGTH_INCHES = 6.5;
+    private static final int HUSKY_SCREEN_WIDTH_PIXELS = 160;
     private static final int    HUSKY_CAMERA_FOV_DEGREES = 160;
     private static final double SLOW_TURN = 0.25; // For when an AprilTag isn't detected.
     public static boolean       isExtended = false;
@@ -49,55 +49,31 @@ public class RobotFunctions extends PIDControl{
 
     public void init(HardwareMap hwMap){
 
-        this.leftIntakeMotor = hwMap.get(DcMotor.class, "leftIntakeMotor");
-        this.rightIntakeMotor = hwMap.get(DcMotor.class, "rightIntakeMotor");
-
-        this.leftOuttakeMotor = hwMap.get(DcMotor.class, "leftOuttakeMotor");
-        this.rightOuttakeMotor = hwMap.get(DcMotor.class, "rightOuttakeMotor");
-
+        intakeMotor = hwMap.get(DcMotor.class, "intakeMotor");
+        outtakeMotor = hwMap.get(DcMotor.class, "outtakeMotor");
         turretMotor = hwMap.get(DcMotor.class, "turretMotor");
 
-        this.launchServo = hwMap.get(Servo.class, "launchServo");
+        launchServo = hwMap.get(Servo.class, "launchServo");
 
-        this.leftIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        this.rightIntakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        this.leftOuttakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        this.rightOuttakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        outtakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         turretMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-        this.leftIntakeMotor.setDirection(DcMotor.Direction.FORWARD);
-        this.rightIntakeMotor.setDirection(DcMotor.Direction.REVERSE);
-
-        this.leftOuttakeMotor.setDirection(DcMotor.Direction.FORWARD);
-        this.rightOuttakeMotor.setDirection(DcMotor.Direction.REVERSE);
     }
 
-    public final void fullExtend() {launchServo.setPosition(1.0);} /** for testing mainly*/
+    public final void fullExtend() {launchServo.setPosition(1.0);}
     public final void customExtend() {launchServo.setPosition(CUSTOM_SERVO_EXTEND);}
     public final void close() {launchServo.setPosition(0.0);}
 
     public final void activateIntake(double power, boolean isHeld){
 
-        if (isHeld){
-            this.leftIntakeMotor.setPower(power);
-            this.rightIntakeMotor.setPower(power);
-        } else {
-            this.leftIntakeMotor.setPower(0.0);
-            this.rightIntakeMotor.setPower(0.0);
-        }
+        if (isHeld) intakeMotor.setPower(power);
+        else intakeMotor.setPower(0);
     }
 
     public final void activateOuttake(double power, boolean isHeld){
 
-        if (isHeld) {
-            this.leftOuttakeMotor.setPower(power * motorScalar);
-            this.rightOuttakeMotor.setPower(power * motorScalar);
-        } else {
-            this.leftOuttakeMotor.setPower(0.0);
-            this.rightOuttakeMotor.setPower(0.0);
-        }
+        if (isHeld) outtakeMotor.setPower(power);
+        else outtakeMotor.setPower(0);
     }
 
     public final void setOuttakeScalar(double newScale){ motorScalar = newScale; }
@@ -125,6 +101,7 @@ public class RobotFunctions extends PIDControl{
 
         // No AprilTag found... look around for one.
         if (-1 == getCurrentValue()){
+
             applyOutput(SLOW_TURN);
             return;
         }
@@ -132,40 +109,23 @@ public class RobotFunctions extends PIDControl{
     }
 
 
+    public double calculateDistance() {
 
-    //TODO: Fix, apparently entirely broken
-    /*
-    public double calculateDistance(){
-
-        @NotNull
         double tagWidthPx = husky.getTagWidth();
 
-        // We know the dimensions of the bounding box,
-        // the pixel dimensions of the husky lens camera,
-        // the FOV of the camera, in degrees,
-        // and the pixel dimensions of the tag.
+        // Fraction of the camera's horizontal resolution
+        double fractionOfImageWidth = tagWidthPx / HUSKY_SCREEN_WIDTH_PIXELS;
 
-        double fractionOfImageWidth = tagWidthPx / HUSKY_SCREEN_WIDTH;
-
-        // We can determine the dimensions of the image by dividing the
-        // known April Tag dimension by the proportion of its width on
-        // the screen.
-
+        // True width of the image plane at that distance
         double screenWidthInches = APRILTAG_SIDELENGTH_INCHES / fractionOfImageWidth;
 
-        // We can then imagine an isosceles triangle where the camera is at one point,
-        // and opposite it is the image.
-        // Then, the distance can be thought of as a line segment from the camera to the
-        // image that bisects the angle HUSKY_CAMERA_FOV_DEGREES, and because this triangle is
-        // isosceles, it perpendicularly bisects screenWidthInches.
-        // Ergo creating a right-angle triangle, wherein we know the angle (HUSKY_CAMERA_FOV_DEGREES / 2)
-        // and the side opposite it (screenWidthInches / 2).
+        // Convert FOV to radians
+        double halfFovRadians = Math.toRadians(HUSKY_CAMERA_FOV_DEGREES / 2);
 
-        double distance = (screenWidthInches / 2) / (2 * Math.tan(HUSKY_CAMERA_FOV_DEGREES / 2));
-
+        double distance = (screenWidthInches / 2) / Math.tan(halfFovRadians);
 
         return distance;
     }
 
-     */
 }
+*/
