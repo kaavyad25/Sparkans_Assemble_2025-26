@@ -37,7 +37,10 @@ public class TurretSystem extends PIDControl{
     @Override
     public void applyOutput(double output){ turretMotor.setPower(output);}
 
+
     public void continousUpdate(){
+
+        if (!husky.isTagRecognition()) return;
 
         // getAprilTagOffset returns -1 when no tag is detected.
         // turret must spin until it detects a tag.

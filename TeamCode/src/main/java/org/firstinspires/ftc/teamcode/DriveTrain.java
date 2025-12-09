@@ -91,8 +91,8 @@ public class DriveTrain {
         frontLeftPower =    power*cos/maxSinCos + rotation; // swap +- to invert rotation direction
         backLeftPower =     power*sin/maxSinCos + rotation;
 
-        frontRightPower =   power*cos/maxSinCos - rotation;
-        backRightPower =    power*sin/maxSinCos - rotation;
+        frontRightPower =   power*sin/maxSinCos - rotation;
+        backRightPower =    power*cos/maxSinCos - rotation;
 
         double frontMax =   Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
         double backMax =    Math.max(Math.abs(backLeftPower), Math.abs(backRightPower));
@@ -147,8 +147,8 @@ public class DriveTrain {
         frontLeftPower = power*cos/maxSinCos + rotation;
         backLeftPower = power*sin/maxSinCos + rotation;
 
-        frontRightPower = power*cos/maxSinCos - rotation;
-        backRightPower = power*sin/maxSinCos - rotation;
+        frontRightPower = power*sin/maxSinCos - rotation;
+        backRightPower = power*cos/maxSinCos - rotation;
 
         double frontMax = Math.max(Math.abs(frontLeftPower), Math.abs(frontRightPower));
         double backMax = Math.max(Math.abs(backLeftPower), Math.abs(backRightPower));

@@ -2,21 +2,26 @@ package org.firstinspires.ftc.teamcode;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 
 /**
  * Main TeleOp Handler.
  */
 
+@TeleOp
 public class AssembledBot extends LinearOpMode{
 
-    private RobotContainer  robot;
+    //private RobotContainer  robot;
     private DriveTrain      dt = new DriveTrain();
     private IMUOdometry     imu = new IMUOdometry();
 
-    private static final double STANDARD_INTAKE_POWER = 1.0;
-    private static double       STANDARD_OUTTAKE_POWER = 1.0;
+    private  static final int   OBJECT_TRACKING = 0;
+    private  static final int   FACE_RECOGNITION = 1;
+    private  static final int   COLOR_RECOGNITION = 2;
+    private  static final int   OBJECT_RECOGNITION = 3;
+    private  static final int   TAG_RECOGNITION = 4;
     private static double       driveScalar = 1.0;
 
     @Override
@@ -24,39 +29,58 @@ public class AssembledBot extends LinearOpMode{
 
         dt.init(hardwareMap);
         imu.init(hardwareMap);
-        robot = new RobotContainer(hardwareMap);
+        //robot = new RobotContainer(hardwareMap);
 
         waitForStart();
 
         dt.isMoving = true;
+     //    robot.selectHuskyMode(TAG_RECOGNITION);
 
         while (opModeIsActive()){
 
-            double rightJoyStickX = gamepad1.left_stick_x;
-            double rightJoyStickY = -gamepad1.left_stick_y;
-            double leftJoystickX = gamepad1.right_stick_x;
+            double rightJoyStickX = gamepad2.left_stick_x;
+            double rightJoyStickY = -gamepad2.left_stick_y;
+            double leftJoystickX = gamepad2.right_stick_x;
 
-            boolean intakeButton = gamepad1.left_bumper;
-            boolean outtakeButton = gamepad1.right_bumper;
-            boolean servoTrigger = gamepad1.a;
+//            boolean intakeButton = gamepad2.left_bumper;
+//            boolean outtakeButton = gamepad2.right_bumper;
+//            boolean servoTrigger = gamepad2.a;
+//            boolean reverseOuttake = gamepad2.b;
 
             double currentHeadingDeg = imu.getContinuousHeadingDeg();
 
-            robot.intakeOuttake.applyIntakePower(STANDARD_INTAKE_POWER, intakeButton);
-            robot.intakeOuttake.applyOuttakePower(STANDARD_OUTTAKE_POWER, outtakeButton);
-            robot.intakeOuttake.servoEvent(servoTrigger);
+        //    robot.useIntake(intakeButton);
+        //    robot.useOuttake(outtakeButton);
+        //    robot.setServoState(servoTrigger);
 
-            if (robot.husky.isTagRecognition()) { robot.turret.continousUpdate();}
+        //    if (robot.checkForTagRecognition())  robot.updateTurret();
+
+
 
             dt.setSpeedScalar(driveScalar);
-            dt.fieldOrientedTranslate(
+            dt.robotOrientedTranslate(
                     rightJoyStickX,
                     rightJoyStickY,
-                    leftJoystickX,
-                    currentHeadingDeg
+                    leftJoystickX
             );
+
+           telemetyStuff();
+
+
+        //    if (reverseOuttake) { robot.intakeOuttake.reverseOuttake();}
         }
     }
+
+    private void telemetyStuff(){
+        telemetry.addData("Current Heading", imu.getContinuousHeadingDeg());
+        telemetry.addData("Orientation", imu.getRobotOrientation());
+
+
+        telemetry.update();
+    }
+
+
+
 }
 
 
@@ -68,7 +92,7 @@ public class AssembledBot extends LinearOpMode {
     HuskyLensCamera husky = new HuskyLensCamera();
 
     // Placeholders
-    //TODO: Manually tune Kp, Ki, Kd
+
     RobotFunctions  func = new RobotFunctions(1.0, 1.0, 1.0, husky, elapsedTime);
 
     private static final double     STANDARD_OUTTAKE_POWER = 1.0;  // Change later when tested

@@ -10,8 +10,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  * of Autonomous.
  */
 
-
-
 public class HuskyLensCamera {
     private HuskyLens   huskyLens;
     public enum         HLMode {
@@ -20,11 +18,10 @@ public class HuskyLensCamera {
         OBJECT_TRACKING,
         COLOR_RECOGNITION,
         OBJECT_RECOGNITION
-
     }
-    public HLMode    currentMode = HLMode.TAG_RECOGNITION;
-    public double    tagWidthPx;
-    public double    tagHeightPx;
+    private HLMode   currentMode = HLMode.TAG_RECOGNITION;
+    private double  tagWidthPx;
+    private double  tagHeightPx;
 
 
     public void init(HardwareMap hwMap) {
@@ -34,6 +31,7 @@ public class HuskyLensCamera {
     }
 
     private void setHuskyMode(HLMode currentMode) {
+
         switch (currentMode) {
             case OBJECT_TRACKING:
                 huskyLens.selectAlgorithm(HuskyLens.Algorithm.OBJECT_TRACKING);
@@ -55,6 +53,16 @@ public class HuskyLensCamera {
         }
     }
 
+    public void setModeUsingIndex(int index){
+
+        if (0 > index || HLMode.values().length < index) { return; }
+
+        currentMode = HLMode.values()[index];
+        setHuskyMode(currentMode);
+
+    }
+
+
     public int readAndDecodeAprilTag(){
 
         HuskyLens.Block[]   blocks = huskyLens.blocks();
@@ -63,6 +71,7 @@ public class HuskyLensCamera {
         if (null != blocks && 0 < blocks.length) tagID = blocks[0].id;
         return tagID;
     }
+
 
 
     private void setAprilTagValues(){

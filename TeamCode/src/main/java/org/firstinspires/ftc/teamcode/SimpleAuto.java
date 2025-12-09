@@ -10,19 +10,27 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class SimpleAuto extends LinearOpMode {
 
     DriveTrain      dt = new DriveTrain();
-    IMUOdometry     imu = new IMUOdometry();
+  //  IMUOdometry     imu = new IMUOdometry();
   //  RobotFunctions  func = new RobotFunctions(1.0, 1.0, 1.0, h);
 
 
-    public void runOpMode(){
+    public void runOpMode() throws InterruptedException{
 
         dt.init(hardwareMap);
         //imu.init(hardwareMap);
         //func.init(hardwareMap);
+        waitForStart();
 
-        while (opModeIsActive()){
+        dt.isMoving = true;
 
+
+        if (opModeIsActive()) {
+            dt.robotOrientedTranslate(0, 1, 0);
+            sleep(1500);
+
+            dt.robotOrientedTranslate(0, 0, 0);
         }
+
 
     }
 

@@ -15,9 +15,9 @@ public abstract class PIDControl {
     protected double    integral, lastError, lastTime;
     ElapsedTime elapsedTime;
 
-    //--------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     //Construction
-    //-------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
     public PIDControl(double Kp, double Ki, double Kd, ElapsedTime elapsedTime) {
         this.Kp = Kp;
         this.Ki = Ki;
@@ -28,11 +28,11 @@ public abstract class PIDControl {
         this.elapsedTime = elapsedTime;
     }
 
-    // --- Abstract methods (must be implemented by subclass) ---
+    // --- Abstract methods (must be implemented by subclass) --------------------------------------
     protected abstract double getCurrentValue();  // read sensor
     protected abstract void applyOutput(double output); // apply to motor or servo
 
-    // --- Shared PID logic ---
+    // --- Shared PID logic ------------------------------------------------------------------------
     public void update(double target) {
         double current = getCurrentValue();
         double currentTime = elapsedTime.milliseconds();
